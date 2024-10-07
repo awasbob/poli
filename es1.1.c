@@ -5,21 +5,19 @@
 char *cercaRegexp(char *src, char *regexp);
 
 int main() {
-
-
+    // MAIN
+    
     return 0; 
 }
 
 // nonrec
 
 char *cercaRegexp(char *src, char *regexp) {
-    int i, j, lens, lenr, lenr_in, cont=0, flag=0; 
+    int lens, lenr, lenr_in, cont=0; 
+    char * regexp_in = regexp, * src_ret = src; 
     lens = strlen(src);
     lenr = strlen(regexp); 
-    char * temp = src; 
     lenr_in=lenr;
-
-    if(lens<lenr) return NULL; 
 
     while(lenr>0 && lens>0) { 
         lenr = strlen(regexp);
@@ -32,7 +30,9 @@ char *cercaRegexp(char *src, char *regexp) {
         }
         else{
             if(isalpha(*regexp)!=0) {
-                regexp = temp;
+                regexp = regexp_in;
+                src++;          // MODIFICABILE: portare src al prossimo carattere dopo spazio vuoto invece che al carattere successivo
+                src_ret=src;
                 cont=0; 
             }
             else{
@@ -58,7 +58,7 @@ char *cercaRegexp(char *src, char *regexp) {
                             }
                         }
                         else {
-                            while(*regexp!=']'){  
+                            while(*regexp!=']'){  // serve aggiungere un flag di controllo all'uscita del while
                                 if(*regexp!=*src) regexp++; 
                                 else{
                                     src++; 
@@ -71,6 +71,31 @@ char *cercaRegexp(char *src, char *regexp) {
                         break;
 
                     case '\\': //stesso modo di prima, porta avanti i puntatori, controlla con a islower 
+                        regexp++; 
+                        if(*regexp=='a') { 
+                            if(iswlower(*src)!=0) {
+                                src++;
+                                regexp++;
+                                cont++; 
+                            }
+                            else {
+                                regexp = regexp_in; 
+                                src++; // MODIFICABILE come sopra src fino a dopo ' '
+                                cont=0;
+                            }
+                        }
+                        else{ //sa da per scontato o 'a' o 'A'
+                            if(islower(*src)==0) {
+                                src++;
+                                regexp++;
+                                cont++; 
+                            }
+                            else{
+                                regexp = regexp_in; 
+                                src++; // MODIFICABILE come sopra src fino a dopo ' '
+                                cont=0;
+                            }
+                            }
                         break; 
                     
                 }
@@ -78,6 +103,6 @@ char *cercaRegexp(char *src, char *regexp) {
         } 
     }
 
-    if(lenr==0 && cont==lenr_in)  return (char*)&temp; 
+    if(lenr==0 && cont==lenr_in)  return (char*)&src_ret; 
     return NULL; 
 }
